@@ -1,5 +1,5 @@
 <script type="text/javascript" lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import {
 		isHex,
 		fromHex,
@@ -15,7 +15,10 @@
 		isAddress,
 		getAddress
 	} from 'viem';
+    import {debounce} from '$lib/debounce';
+    import {currency, currencyFourDecimals} from '$lib/currency';
 	import type { Hex } from 'viem';
+
 
 	let wei = '0';
 	$: gwei = formatGwei(BigInt(wei));
@@ -33,18 +36,34 @@
 	$: decimal = errorOr(() => fromHex(hex as Hex, 'bigint').toString());
 	$: text = errorOr(() => hexToString(hex as Hex).toString());
 
+    let decodedCalldata: string | null = null;
+
+    const [debounceHex, clearDebounceHex] = debounce(async (req) => {
+        decodedCalldata = '';
+        const response = await fetch(`https://ether.actor/decode/${hex}`)
+        if (!response.ok) {
+            return;
+        }
+        const data = await response.json();
+        decodedCalldata = JSON.stringify(data, null, 2);
+    }, 300);
+
     let ethUsd: number = 0;
-    $: usdValue = (ethUsd * parseFloat(formatEther(BigInt(wei)))).toFixed(4)
+    $: usdValue = currencyFourDecimals.format(parseFloat(formatEther(BigInt(wei))) * ethUsd);
     const onUSDChange = (evt: any) => {
         const data = parseFloat(evt.target.value)
-        wei = parseEther((data * ethUsd).toString()).toString();
+        wei = parseEther((data / ethUsd).toString()).toString();
     }
 
     onMount(async () => {
         const response = await fetch('https://api.coinbase.com/v2/prices/ETH-USD/spot')
         const {data: {amount}} = await response.json()
         ethUsd = amount;
-    })
+    });
+
+    onDestroy(() => {
+        clearDebounceHex();
+    });
 
 
 	let address = '';
@@ -120,7 +139,7 @@
 			</div>
 			<label for="ether">Ether <sup>(10^18)</sup></label>
 			<div><input id="ether" type="text" bind:value={eth} on:keyup={onKeyEth} /></div>
-			<label for="usd">USD <small>{ethUsd}</small></label>
+			<label for="usd">USD <small>{currency.format(ethUsd)}/eth</small></label>
 			<div><input id="usd" type="text" bind:value={usdValue} on:change={onUSDChange} /></div>
 		</div>
 	</form>
@@ -129,11 +148,15 @@
 		<h3 class="h">hex utils</h3>
 		<div class="form">
 			<label for="hex">Hex Data</label>
-			<input id="hex" type="text" bind:value={hex} />
+			<input id="hex" type="text" on:change={debounceHex} bind:value={hex} />
 			<label for="decimal">Decimal Data</label>
 			<input id="decimal" type="text" bind:value={decimal} on:keyup={onChangeHexDecimal} />
 			<label for="text">Text Data</label>
 			<input id="text" type="text" bind:value={text} on:keyup={onChangeHexText} />
+            {#if decodedCalldata}
+            <label for="decodedCalldata">Decoded calldata</label>
+            <pre id="decoded">{decodedCalldata}</pre>
+            {/if}
 		</div>
 	</form>
 
@@ -154,6 +177,14 @@
 		<label for="zerobytes32">Zero Bytes32</label>
 		<input id="zerobytes32" type="text" value={pad('0x')} on:click={selectAndCopy} />
 	</form>
+
+    <br />
+    <br />
+    <br />
+    <br />
+    <footer>
+        by <a href="https://warpcast.com/iain">iain</a>
+    </footer>
 </section>
 
 <style>
@@ -163,6 +194,10 @@
 		margin: 0 auto;
 	}
 
+    .page, h1.h {
+		font-family: Helvetica, Arial, sans-serif;
+    }
+
 	h1.h {
 		font-size: 1.7em;
 		padding: 20px;
@@ -170,7 +205,6 @@
 
 	.h,
 	.f {
-		font-family: Helvetica;
 		font-size: 1.2em;
 	}
 
@@ -185,13 +219,18 @@
 		display: block;
 		margin: 10px 0;
 		font-size: 1em;
-		width: 100%;
+		width: calc(100% - 20px);
 	}
 
 	.form {
 		display: grid;
 		align-items: center;
 	}
+
+    .page footer {
+        text-align: center;
+        padding-bottom: 30px;
+    }
 
 	@media only screen and (min-width: 800px) {
 		.f input {
