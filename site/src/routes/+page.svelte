@@ -19,8 +19,9 @@
 	import { currency, currencyFourDecimals } from '$lib/currency';
 	import { errorOr } from '$lib/errorOr';
 	import type { Hex } from 'viem';
+	import { handleOperations, hasSupportedMathOperations } from '$lib/calculator';
 
-    /** hex handlers */
+	/** hex handlers */
 	let hex = '0x';
 	$: decimal = errorOr(() => `${fromHex(hex as Hex, 'bigint')}`, '');
 	$: text = errorOr(() => `${hexToString(hex as Hex)}`, '');
@@ -41,7 +42,7 @@
 		clearDebounceHex();
 	});
 
-    /** hex handlers */
+	/** hex handlers */
 	const onChangeHexDecimal = (evt: any) => {
 		hex = numberToHex(BigInt(evt.target.value));
 	};
@@ -50,8 +51,7 @@
 		hex = stringToHex(evt.target.value);
 	};
 
-    /** address handlers */
-
+	/** address handlers */
 	let address = '';
 	$: addressLowercased = address.toLowerCase();
 	const onChangeAddress = (evt: any) => {
@@ -61,9 +61,9 @@
 		}
 	};
 
-    /** wei/gwei/eth & usd handlers */
+	/** wei/gwei/eth & usd handlers */
 
-    /** usd handlers */
+	/** usd handlers */
 	let wei = '0';
 	$: gwei = formatGwei(BigInt(wei));
 	$: eth = formatEther(BigInt(wei));
@@ -86,13 +86,18 @@
 		if (isHex(evt.target.value)) {
 			const hexInt = fromHex(evt.target.value, 'bigint');
 			wei = hexInt.toString();
+		} else if (hasSupportedMathOperations(evt.target.value)) {
+			const result = handleOperations(evt.target.value, 1n);
+			if (result) {
+				wei = result;
+			}
 		}
 	};
 
 	const onKeyGwei = (evt: any) => {
 		const value = evt.target.value;
 		errorOr(() => {
-			if (!value.includes('*')) {
+			if (!hasSupportedMathOperations(value)) {
 				wei = parseGwei(value).toString();
 			}
 		}, undefined);
@@ -100,25 +105,35 @@
 
 	const onChangeGwei = (evt: any) => {
 		const value = evt.target.value;
-		if (value.includes('*')) {
-			const [left, right] = value.split('*');
-			wei = (
-				parseGwei(left.trim()) * BigInt(right.replace(/[kK]/, '000').trim() || '1')
-			).toString();
+		if (hasSupportedMathOperations(value)) {
+			const output = handleOperations(value, 10n ** 9n);
+			if (output) {
+				console.log('data', output);
+				wei = output;
+			}
 		}
 	};
 
 	const onKeyEth = (evt: any) => {
-		wei = parseEther(evt.target.value).toString();
+		if (!hasSupportedMathOperations(evt.target.value)) {
+			wei = parseEther(evt.target.value).toString();
+		}
 	};
 
-    // helper for address constant values
+	const onChangeEth = (evt: any) => {
+		if (hasSupportedMathOperations(evt.target.value)) {
+			const result = handleOperations(evt.target.value, 10n ** 18n);
+			if (result) {
+				wei = result;
+			}
+		}
+	};
+
+	// helper for address constant values
 	const selectAndCopy = (evt: any) => {
 		evt.target.select();
 		document.execCommand('copy');
 	};
-
-
 </script>
 
 <h1 class="h">wei.tools</h1>
@@ -140,7 +155,15 @@
 				/>
 			</div>
 			<label for="ether">Ether <sup>(10^18)</sup></label>
-			<div><input id="ether" type="text" bind:value={eth} on:keyup={onKeyEth} /></div>
+			<div>
+				<input
+					id="ether"
+					type="text"
+					bind:value={eth}
+					on:change={onChangeEth}
+					on:keyup={onKeyEth}
+				/>
+			</div>
 			<label for="usd">USD <small>{currency.format(ethUsd)}/eth</small></label>
 			<div><input id="usd" type="text" bind:value={usdValue} on:change={onUSDChange} /></div>
 		</div>
