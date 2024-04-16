@@ -51,7 +51,7 @@
     let ethUsd: number = 0;
     $: usdValue = currencyFourDecimals.format(parseFloat(formatEther(BigInt(wei))) * ethUsd);
     const onUSDChange = (evt: any) => {
-        const data = parseFloat(evt.target.value)
+        const data = parseFloat(evt.target.value.replace(/[$, ]/g, ''))
         wei = parseEther((data / ethUsd).toString()).toString();
     }
 
