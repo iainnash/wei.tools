@@ -22,13 +22,13 @@
 	import { handleOperations, hasSupportedMathOperations } from '$lib/calculator';
 
 	/** hex handlers */
-	let hex = '0x';
+	let hex = '';
 	$: decimal = errorOr(() => `${fromHex(hex as Hex, 'bigint')}`, '');
 	$: text = errorOr(() => `${hexToString(hex as Hex)}`, '');
 
 	let decodedCalldata: string | null = null;
 
-	const [debounceHex, clearDebounceHex] = debounce(async (req) => {
+	const [debounceHex, clearDebounceHex] = debounce(async () => {
 		decodedCalldata = '';
 		const response = await fetch(`https://ether.actor/decode/${hex}`);
 		if (!response.ok) {
@@ -65,6 +65,7 @@
 
 	/** usd handlers */
 	let wei = '0';
+	$: weiValue = BigInt(wei)
 	$: gwei = formatGwei(BigInt(wei));
 	$: eth = formatEther(BigInt(wei));
 	onMount(async () => {
@@ -82,15 +83,29 @@
 		wei = parseEther((data / ethUsd).toString()).toString();
 	};
 
+	const onKeyWei = (evt: any) => {
+		errorOr(() => {
+			const value = BigInt(evt.target.value);
+			console.log('has wei value', value);
+			if (value) {
+				wei = `${value}`;
+			}
+		});
+	};
+
 	const onChangeWei = (evt: any) => {
 		if (isHex(evt.target.value)) {
+			console.log('hex!', evt.target.value);
 			const hexInt = fromHex(evt.target.value, 'bigint');
 			wei = hexInt.toString();
 		} else if (hasSupportedMathOperations(evt.target.value)) {
 			const result = handleOperations(evt.target.value, 1n);
 			if (result) {
+				console.log('has result', { result });
 				wei = result;
 			}
+		} else  {
+			console.log('simple wei');
 		}
 	};
 
@@ -100,7 +115,7 @@
 			if (!hasSupportedMathOperations(value)) {
 				wei = parseGwei(value).toString();
 			}
-		}, undefined);
+		});
 	};
 
 	const onChangeGwei = (evt: any) => {
@@ -143,7 +158,15 @@
 		<h3 class="h">eth converter utils</h3>
 		<div class="form">
 			<label for="wei">Wei <sup>(10^0)</sup></label>
-			<div><input id="wei" type="text" bind:value={wei} on:change={onChangeWei} /></div>
+			<div>
+				<input
+					id="wei"
+					type="text"
+					bind:value={weiValue}
+					on:keyup={onKeyWei}
+					on:change={onChangeWei}
+				/>
+			</div>
 			<label for="gwei">Gwei <sup>(10^9)</sup></label>
 			<div>
 				<input
@@ -160,8 +183,8 @@
 					id="ether"
 					type="text"
 					bind:value={eth}
-					on:change={onChangeEth}
 					on:keyup={onKeyEth}
+					on:change={onChangeEth}
 				/>
 			</div>
 			<label for="usd">USD <small>{currency.format(ethUsd)}/eth</small></label>
