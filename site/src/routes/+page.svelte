@@ -121,7 +121,7 @@
 </script>
 
 <h1 class="h">wei.tools</h1>
-<p>a small catalogue of ethereum developer tools</p>
+<p class="h">a small catalogue of ethereum developer tools</p>
 <section class="page">
 	<form class="f">
 		<h3 class="h">eth converter utils</h3>
@@ -184,7 +184,7 @@
     <br />
     <br />
     <footer>
-        by <a href="https://warpcast.com/iain">iain</a>
+        by <a href="https://warpcast.com/iain">iain</a> // <a href="https://github.com/iainnash/wei.tools/">github</a>
     </footer>
 </section>
 
@@ -195,13 +195,19 @@
 		margin: 0 auto;
 	}
 
-    .page, h1.h {
+    .page, h1.h, p.h {
 		font-family: Helvetica, Arial, sans-serif;
+    }
+
+    p.h {
+        padding: 20px;
+        font-size: 0.9em;
     }
 
 	h1.h {
 		font-size: 1.7em;
 		padding: 20px;
+        padding-bottom: 0;
 	}
 
 	.h,
