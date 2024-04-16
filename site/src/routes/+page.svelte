@@ -15,65 +15,71 @@
 		isAddress,
 		getAddress
 	} from 'viem';
-    import {debounce} from '$lib/debounce';
-    import {currency, currencyFourDecimals} from '$lib/currency';
+	import { debounce } from '$lib/debounce';
+	import { currency, currencyFourDecimals } from '$lib/currency';
+	import { errorOr } from '$lib/errorOr';
 	import type { Hex } from 'viem';
 
-
-	let wei = '0';
-	$: gwei = formatGwei(BigInt(wei));
-	$: eth = formatEther(BigInt(wei));
-
-	function errorOr(stmt: () => string) {
-		try {
-			return stmt();
-		} catch (err: any) {
-			return '';
-		}
-	}
-
+    /** hex handlers */
 	let hex = '0x';
-	$: decimal = errorOr(() => fromHex(hex as Hex, 'bigint').toString());
-	$: text = errorOr(() => hexToString(hex as Hex).toString());
+	$: decimal = errorOr(() => `${fromHex(hex as Hex, 'bigint')}`, '');
+	$: text = errorOr(() => `${hexToString(hex as Hex)}`, '');
 
-    let decodedCalldata: string | null = null;
+	let decodedCalldata: string | null = null;
 
-    const [debounceHex, clearDebounceHex] = debounce(async (req) => {
-        decodedCalldata = '';
-        const response = await fetch(`https://ether.actor/decode/${hex}`)
-        if (!response.ok) {
-            return;
-        }
-        const data = await response.json();
-        decodedCalldata = JSON.stringify(data, null, 2);
-    }, 300);
+	const [debounceHex, clearDebounceHex] = debounce(async (req) => {
+		decodedCalldata = '';
+		const response = await fetch(`https://ether.actor/decode/${hex}`);
+		if (!response.ok) {
+			return;
+		}
+		const data = await response.json();
+		decodedCalldata = JSON.stringify(data, null, 2);
+	}, 300);
 
-    let ethUsd: number = 0;
-    $: usdValue = currencyFourDecimals.format(parseFloat(formatEther(BigInt(wei))) * ethUsd);
-    const onUSDChange = (evt: any) => {
-        const data = parseFloat(evt.target.value.replace(/[$, ]/g, ''))
-        wei = parseEther((data / ethUsd).toString()).toString();
-    }
+	onDestroy(() => {
+		clearDebounceHex();
+	});
 
-    onMount(async () => {
-        const response = await fetch('https://api.coinbase.com/v2/prices/ETH-USD/spot')
-        const {data: {amount}} = await response.json()
-        ethUsd = amount;
-    });
+    /** hex handlers */
+	const onChangeHexDecimal = (evt: any) => {
+		hex = numberToHex(BigInt(evt.target.value));
+	};
 
-    onDestroy(() => {
-        clearDebounceHex();
-    });
+	const onChangeHexText = (evt: any) => {
+		hex = stringToHex(evt.target.value);
+	};
 
+    /** address handlers */
 
 	let address = '';
 	$: addressLowercased = address.toLowerCase();
-
 	const onChangeAddress = (evt: any) => {
 		const value = evt.target.value;
 		if (isAddress(value)) {
 			address = getAddress(value);
 		}
+	};
+
+    /** wei/gwei/eth & usd handlers */
+
+    /** usd handlers */
+	let wei = '0';
+	$: gwei = formatGwei(BigInt(wei));
+	$: eth = formatEther(BigInt(wei));
+	onMount(async () => {
+		const response = await fetch('https://api.coinbase.com/v2/prices/ETH-USD/spot');
+		const {
+			data: { amount }
+		} = await response.json();
+		ethUsd = amount;
+	});
+
+	let ethUsd: number = 0;
+	$: usdValue = currencyFourDecimals.format(parseFloat(formatEther(BigInt(wei))) * ethUsd);
+	const onUSDChange = (evt: any) => {
+		const data = parseFloat(evt.target.value.replace(/[$, ]/g, ''));
+		wei = parseEther((data / ethUsd).toString()).toString();
 	};
 
 	const onChangeWei = (evt: any) => {
@@ -85,20 +91,20 @@
 
 	const onKeyGwei = (evt: any) => {
 		const value = evt.target.value;
-		try {
+		errorOr(() => {
 			if (!value.includes('*')) {
 				wei = parseGwei(value).toString();
 			}
-		} catch (err: any) {
-			console.error(err);
-		}
+		}, undefined);
 	};
 
 	const onChangeGwei = (evt: any) => {
 		const value = evt.target.value;
 		if (value.includes('*')) {
 			const [left, right] = value.split('*');
-			wei = (parseGwei(left.trim()) * BigInt(right.replace(/[kK]/, '000').trim() || '1')).toString();
+			wei = (
+				parseGwei(left.trim()) * BigInt(right.replace(/[kK]/, '000').trim() || '1')
+			).toString();
 		}
 	};
 
@@ -106,18 +112,13 @@
 		wei = parseEther(evt.target.value).toString();
 	};
 
+    // helper for address constant values
 	const selectAndCopy = (evt: any) => {
 		evt.target.select();
 		document.execCommand('copy');
 	};
 
-	const onChangeHexDecimal = (evt: any) => {
-		hex = numberToHex(BigInt(evt.target.value));
-	};
 
-	const onChangeHexText = (evt: any) => {
-		hex = stringToHex(evt.target.value);
-	};
 </script>
 
 <h1 class="h">wei.tools</h1>
@@ -154,10 +155,10 @@
 			<input id="decimal" type="text" bind:value={decimal} on:keyup={onChangeHexDecimal} />
 			<label for="text">Text Data</label>
 			<input id="text" type="text" bind:value={text} on:keyup={onChangeHexText} />
-            {#if decodedCalldata}
-            <label for="decodedCalldata">Decoded calldata</label>
-            <pre id="decoded">{decodedCalldata}</pre>
-            {/if}
+			{#if decodedCalldata}
+				<label for="decodedCalldata">Decoded calldata</label>
+				<pre id="decoded">{decodedCalldata}</pre>
+			{/if}
 		</div>
 	</form>
 
@@ -174,18 +175,19 @@
 	<form class="f">
 		<h3 class="h">constants</h3>
 		<label for="zero">Zero Address</label>
-		<input id="zero" type="text" value={zeroAddress} on:click={selectAndCopy} />
+		<input id="zero" type="text" readonly value={zeroAddress} on:click={selectAndCopy} />
 		<label for="zerobytes32">Zero Bytes32</label>
-		<input id="zerobytes32" type="text" value={pad('0x')} on:click={selectAndCopy} />
+		<input id="zerobytes32" type="text" readonly value={pad('0x')} on:click={selectAndCopy} />
 	</form>
 
-    <br />
-    <br />
-    <br />
-    <br />
-    <footer>
-        by <a href="https://warpcast.com/iain">iain</a> // <a href="https://github.com/iainnash/wei.tools/">github</a>
-    </footer>
+	<br />
+	<br />
+	<br />
+	<br />
+	<footer>
+		by <a href="https://warpcast.com/iain">iain</a> //
+		<a href="https://github.com/iainnash/wei.tools/">github</a>
+	</footer>
 </section>
 
 <style>
@@ -195,19 +197,21 @@
 		margin: 0 auto;
 	}
 
-    .page, h1.h, p.h {
+	.page,
+	h1.h,
+	p.h {
 		font-family: Helvetica, Arial, sans-serif;
-    }
+	}
 
-    p.h {
-        padding: 20px;
-        font-size: 0.9em;
-    }
+	p.h {
+		padding: 20px;
+		font-size: 0.9em;
+	}
 
 	h1.h {
 		font-size: 1.7em;
 		padding: 20px;
-        padding-bottom: 0;
+		padding-bottom: 0;
 	}
 
 	.h,
@@ -234,10 +238,10 @@
 		align-items: center;
 	}
 
-    .page footer {
-        text-align: center;
-        padding-bottom: 30px;
-    }
+	.page footer {
+		text-align: center;
+		padding-bottom: 30px;
+	}
 
 	@media only screen and (min-width: 800px) {
 		.f input {
