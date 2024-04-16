@@ -65,7 +65,7 @@
 
 	/** usd handlers */
 	let wei = '0';
-	$: weiValue = BigInt(wei)
+	$: weiValue = BigInt(wei);
 	$: gwei = formatGwei(BigInt(wei));
 	$: eth = formatEther(BigInt(wei));
 	onMount(async () => {
@@ -104,8 +104,6 @@
 				console.log('has result', { result });
 				wei = result;
 			}
-		} else  {
-			console.log('simple wei');
 		}
 	};
 
