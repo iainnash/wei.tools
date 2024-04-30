@@ -228,10 +228,7 @@
 	<br />
 	<br />
 	<br />
-	<footer>
-		by <a href="https://warpcast.com/iain">iain</a> //
-		<a href="https://github.com/iainnash/wei.tools/">github</a>
-	</footer>
+
 </section>
 
 <style>
@@ -239,6 +236,10 @@
 		max-width: 85%;
 		min-width: 400px;
 		margin: 0 auto;
+	}
+	.page footer {
+		text-align: center;
+		padding-bottom: 30px;
 	}
 
 	.page,
@@ -282,10 +283,6 @@
 		align-items: center;
 	}
 
-	.page footer {
-		text-align: center;
-		padding-bottom: 30px;
-	}
 
 	@media only screen and (min-width: 800px) {
 		.f input {
