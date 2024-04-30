@@ -1,22 +1,27 @@
 <script type="text/javascript" lang="ts">
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { Networks } from '$lib/Networks';
 	import { formatEther, getAddress, type Address, type Hex } from 'viem';
 	import { getAccount, getPublicClient, getWalletClient } from '@wagmi/core';
 
-	let selectedNetwork: number = parseInt($page.url.searchParams.get('network') || '0', 10);
-	let value = BigInt($page.url.searchParams.get('value') || '0');
-	let data: Hex = ($page.url.searchParams.get('data') as Hex) || '0x';
-	let contract: Address = getAddress($page.url.searchParams.get('contract') || '');
+	let request = browser
+		? {
+				network: parseInt($page.url.searchParams.get('network') || '0', 10),
+				value: BigInt($page.url.searchParams.get('value') || '0'),
+				data: ($page.url.searchParams.get('data') as Hex) || ('0x' as Hex),
+				contract: getAddress($page.url.searchParams.get('contract') || '')
+			}
+		: undefined;
 
 	let preview: any = undefined;
 	let previewError = false;
 
-	$: network = selectedNetwork && Networks[selectedNetwork];
+	$: network = request && request.network && Networks[request.network];
 
 	onMount(() => {
-		updateData(data, network);
+		request && updateData(request.data, network);
 	});
 
 	async function updateData(data: string, network: number) {
@@ -42,6 +47,8 @@
 		modal = module.modal;
 	});
 
+	let selectedNetwork: any;
+
 	$: if (modal) {
 		selectedNetwork = modal.getState().selectedNetworkId;
 		modal.subscribeState((newState: any) => {
@@ -54,22 +61,25 @@
 	let transactionError: any;
 
 	async function sendTransaction() {
+		if (!request) {
+			return;
+		}
 		transactionError = undefined;
 		try {
 			const publicClient = getPublicClient(modal.wagmiConfig);
 			const account = getAccount(modal.wagmiConfig);
 			await publicClient.call({
 				account: account.address,
-				data: data,
-				to: contract,
-				value: value
+				data: request.data,
+				to: request.contract,
+				value: request.value
 			});
 
 			const walletClient = await getWalletClient(modal.wagmiConfig);
 			hash = await walletClient.sendTransaction({
-				data: data,
-				to: contract,
-				value: value,
+				data: request.data,
+				to: request.contract,
+				value: request.value,
 				chain: network.data
 			});
 			transactionResult = await publicClient.waitForTransactionReceipt({ hash });
@@ -82,12 +92,17 @@
 </script>
 
 <div>
-	<pre>
+	{#if selectedNetwork && request && request.network !== selectedNetwork}
+		Please switch your wallet network to {network.data.name}
+	{/if}
+	{#if request}
+		<pre>
 Network: {network?.data.name}
-Target: {contract}
-Data: {data}
-Value: {formatEther(value)}
+Target: {request.contract}
+Data: {request.data}
+Value: {formatEther(request.value)}
 	</pre>
+	{/if}
 
 	{#if preview}
 		<pre class="preview">
