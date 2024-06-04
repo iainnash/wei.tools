@@ -2,9 +2,10 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { getAccount, getPublicClient, getWalletClient } from '@wagmi/core';
+	import { browser } from '$app/environment';
 
-	let defaultToSign = $page.url.searchParams.get('message');
-	let desiredUser = $page.url.searchParams.get('desiredUser');
+	let defaultToSign = browser ? $page.url.searchParams.get('message') : undefined;
+	let desiredUser = browser ? $page.url.searchParams.get('desiredUser') : undefined;
 	let messageToSign = defaultToSign;
 
 	let transactionError: any;
@@ -38,7 +39,7 @@
 	{#if defaultToSign}
 		<pre>
 Message to sign: {defaultToSign}
-User: {desiredUser}
+{#if desiredUser}User: {desiredUser}{/if}
 	</pre>
 	{/if}
 
