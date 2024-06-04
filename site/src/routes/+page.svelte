@@ -149,8 +149,6 @@
 	};
 </script>
 
-<h1 class="h">wei.tools</h1>
-<p class="h">a small catalogue of ethereum developer tools</p>
 <section class="page">
 	<form class="f">
 		<h3 class="h">eth converter utils</h3>
