@@ -15,6 +15,7 @@
 		isAddress,
 		getAddress
 	} from 'viem';
+	import Spark from '../components/spark.svelte';
 	import { debounce } from '$lib/debounce';
 	import { currency, currencyFourDecimals } from '$lib/currency';
 	import { errorOr } from '$lib/errorOr';
@@ -67,6 +68,7 @@
 	let wei = '0';
 	$: weiValue = BigInt(wei);
 	$: gwei = formatGwei(BigInt(wei));
+	$: sparks = (BigInt(wei) / 10n ** 12n);
 	$: eth = formatEther(BigInt(wei));
 	onMount(async () => {
 		const response = await fetch('https://api.coinbase.com/v2/prices/ETH-USD/spot');
@@ -127,6 +129,27 @@
 		}
 	};
 
+	const onKeySparks = (evt: any) => {
+		const value = evt.target.value;
+		errorOr(() => {
+			if (!hasSupportedMathOperations(value)) {
+				wei = (BigInt(parseInt(value)) * 10n ** 12n).toString();
+			}
+		});
+	};
+
+	const onChangeSparks = (evt: any) => {
+		const value = evt.target.value;
+		if (hasSupportedMathOperations(value)) {
+			const output = handleOperations(value, 10n ** 12n);
+			if (output) {
+				console.log('data', output);
+				wei = output;
+			}
+		}
+	};
+
+
 	const onKeyEth = (evt: any) => {
 		if (!hasSupportedMathOperations(evt.target.value)) {
 			wei = parseEther(evt.target.value).toString();
@@ -171,6 +194,16 @@
 					bind:value={gwei}
 					on:keyup={onKeyGwei}
 					on:change={onChangeGwei}
+				/>
+			</div>
+			<label for="gwei">Sparks <Spark size="18" /></label>
+			<div>
+				<input
+					id="sparks"
+					type="text"
+					bind:value={sparks}
+					on:keyup={onKeySparks}
+					on:change={onChangeSparks}
 				/>
 			</div>
 			<label for="ether">Ether <sup>(10^18)</sup></label>

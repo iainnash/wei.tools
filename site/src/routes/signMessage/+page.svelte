@@ -66,7 +66,7 @@ Message to sign: {defaultToSign}
 					<input bind:value={messageToSign} />
 				</label>
 				<br />
-				<button on:click={signMessage}>Sign proposed message</button>
+				<input type="submit" value="Sign proposed message" />
 				{#if transactionError}
 					<pre>{transactionError.toString()}</pre>
 				{/if}
