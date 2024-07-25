@@ -196,7 +196,7 @@
 					on:change={onChangeGwei}
 				/>
 			</div>
-			<label for="gwei">Sparks <Spark size="18" /></label>
+			<label for="gwei">Sparks <Spark size="18" /> <sup>(10^12)</sup></label>
 			<div>
 				<input
 					id="sparks"
