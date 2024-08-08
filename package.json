@@ -1,5 +1,4 @@
 {
-    "private": true,
-    "name": "wei.tools",
-    "packageManager": "pnpm"
-  }
+  "private": true,
+  "name": "wei.tools"
+}
