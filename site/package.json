@@ -31,6 +31,7 @@
 		"@wagmi/connectors": "^4.3.0",
 		"@wagmi/core": "^2.8.0",
 		"@web3modal/wagmi": "^4.1.11",
+		"@zoralabs/erc20z": "^0.1.1",
 		"react": "^18.3.1",
 		"viem": "^2.9.28",
 		"vite-plugin-node-polyfills": "^0.21.0"

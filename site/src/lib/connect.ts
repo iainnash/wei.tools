@@ -1,5 +1,5 @@
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi';
-import { mainnet, zora, zoraSepolia, sepolia } from 'viem/chains';
+import { mainnet, zora, zoraSepolia, sepolia, baseSepolia, base } from 'viem/chains';
 import { reconnect } from '@wagmi/core';
 
 // 1. Get a project ID at https://cloud.walletconnect.com
@@ -13,7 +13,7 @@ const metadata = {
 	icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
 
-const chains = [mainnet, zora, zoraSepolia, sepolia] as const;
+const chains = [mainnet, zora, zoraSepolia, sepolia, base, baseSepolia] as const;
 export const config = defaultWagmiConfig({
 	chains,
 	projectId,
@@ -29,4 +29,3 @@ export const modal = createWeb3Modal({
 	enableAnalytics: false, // Optional - defaults to your Cloud configuration
 	enableOnramp: true // Optional - false as default
 });
-
