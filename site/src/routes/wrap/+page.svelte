@@ -169,6 +169,7 @@
 
 	$: parsedZoraPath = parsePath(zoraPath);
 	$: parsedZoraPath && modal && fetchDetails(parsedZoraPath, status);
+	$: zoraPath && $page.url.searchParams.set('path', zoraPath)
 </script>
 
 <div>
