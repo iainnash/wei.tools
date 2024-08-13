@@ -397,10 +397,7 @@
         />
       </div>
       <div>
-        NFT ID: <AddressContainer
-          chain={getChainFromName(parsedZoraPath.chainName)}
-          address={parsedZoraPath?.tokenAddress}
-        />
+        NFT ID: <pre>{parsedZoraPath.tokenId}</pre>
       </div>
       <div>
         Royalties:
