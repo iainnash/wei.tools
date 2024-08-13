@@ -361,13 +361,12 @@
         >
       </select>
 
-      that I want to swap for
+      that I want to {#if option === 'tokens'}wrap{:else}unwrap{/if} for
       <input class="count" type="number" bind:value={numberSwap} />
       associated
       {#if option === "tokens"}
         NFTs{:else}
         ERC20z{/if}.
-
       <input
         disabled={!!status}
         class="submit"
