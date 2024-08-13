@@ -349,7 +349,7 @@
         <input type="submit" on:click={startSale} value="Start sale" />
       {/if}
     {:else if parsedZoraPath}
-      and I have the associated&nbsp;
+      and I have the&nbsp;
       <select bind:value={option}>
         <option value="nft"
           >ZORA NFT {#if resultData}
@@ -361,7 +361,7 @@
         >
       </select>
 
-      that I want to {#if option === 'tokens'}wrap{:else}unwrap{/if} for
+      that I want to {#if option === 'tokens'}unwrap{:else}wrap{/if} for
       <input class="count" type="number" bind:value={numberSwap} />
       associated
       {#if option === "tokens"}
