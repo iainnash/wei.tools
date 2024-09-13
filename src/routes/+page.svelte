@@ -21,6 +21,7 @@
 	import { errorOr } from '$lib/errorOr';
 	import type { Hex } from 'viem';
 	import { handleOperations, hasSupportedMathOperations } from '$lib/calculator';
+	import { formatUnits } from 'viem/utils';
 
 	/** hex handlers */
 	let hex = '';
@@ -68,7 +69,7 @@
 	let wei = '0';
 	$: weiValue = BigInt(wei);
 	$: gwei = formatGwei(BigInt(wei));
-	$: sparks = (BigInt(wei) / 10n ** 12n);
+	$: sparks = formatUnits(BigInt(wei), 12);
 	$: eth = formatEther(BigInt(wei));
 	onMount(async () => {
 		const response = await fetch('https://api.coinbase.com/v2/prices/ETH-USD/spot');
@@ -196,7 +197,7 @@
 					on:change={onChangeGwei}
 				/>
 			</div>
-			<label for="gwei">Sparks <Spark size="18" /> <sup>(10^12)</sup></label>
+			<label for="sparks">Sparks <Spark size="18" /> <sup>(10^12)</sup></label>
 			<div>
 				<input
 					id="sparks"
