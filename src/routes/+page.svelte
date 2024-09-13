@@ -21,7 +21,7 @@
 	import { errorOr } from '$lib/errorOr';
 	import type { Hex } from 'viem';
 	import { handleOperations, hasSupportedMathOperations } from '$lib/calculator';
-  import { formatUnits } from 'viem/utils';
+	import { formatUnits } from 'viem/utils';
 
 	/** hex handlers */
 	let hex = '';
