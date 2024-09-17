@@ -263,6 +263,7 @@
 
 </section>
 
+
 <style>
 	.page {
 		max-width: 85%;
