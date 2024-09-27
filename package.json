@@ -13,7 +13,6 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"prettier": "^3.1.1",
@@ -27,7 +26,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@sveltejs/adapter-static": "^3.0.1",
+		"@sveltejs/adapter-auto": "^3.0.0",
 		"@wagmi/connectors": "^4.3.0",
 		"@wagmi/core": "^2.8.0",
 		"@web3modal/wagmi": "^4.1.11",
