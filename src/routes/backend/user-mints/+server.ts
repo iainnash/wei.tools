@@ -1,9 +1,10 @@
-export async function GET({ params: { username } }: any) {
+export async function GET({ url }: any) {
+  let username = url.searchParams.get("username");
   const response = await fetch("https://api.zora.co/universal/graphql", {
-    method: 'POST',
+    method: "POST",
     headers: {
-      accept: 'application/json',
-      'content-type': 'application/json',
+      accept: "application/json",
+      "content-type": "application/json",
     },
     body: JSON.stringify({
       query: `
