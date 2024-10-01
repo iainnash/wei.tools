@@ -1,5 +1,11 @@
 import { universalQuery } from "../helper";
 
+function delay(timeMs: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, timeMs);
+  });
+}
+
 export async function GET({ url }: { url: URL }) {
   let after: undefined | string = undefined;
   let pageCount = 0;
@@ -17,6 +23,7 @@ query ($username: String!, $after: String) {
       pageInfo {
         endCursor
       }
+        count
       edges {
         node {
           tokenMints {
@@ -32,15 +39,15 @@ query ($username: String!, $after: String) {
     );
     after = createdCollectionsOrTokens.pageInfo.endCursor;
     pageCount = createdCollectionsOrTokens.edges.length;
-    console.log(createdCollectionsOrTokens);
     totalCount += createdCollectionsOrTokens.edges.reduce(
       (total: number, edge: any) => edge.node.tokenMints.count + total,
       0
     );
     iteratedPages += 1;
-  } while (after !== undefined && pageCount > 0 && iteratedPages <= 4);
+    await delay(200);
+  } while (after && pageCount > 0 && iteratedPages <= 6);
 
-  return new Response(`${iteratedPages == 5 && ">"}${totalCount}`, {
+  return new Response(`${iteratedPages == 7 ? ">" : ""}${totalCount}`, {
     headers: {
       "Content-Type": "text/plain",
     },
