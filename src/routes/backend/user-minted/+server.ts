@@ -3,13 +3,13 @@ import { universalQuery } from "../helper";
 export async function GET({ url }: { url: URL }) {
   const {
     profile: {
-      createdCollectionsOrTokens: { count },
+      collectedCollectionsOrTokens: { count },
     },
   } = await universalQuery(
     `
     query ($username: String!) {
       profile(identifier: $username) {
-        createdCollectionsOrTokens {
+        collectedCollectionsOrTokens {
           count
         }
       }
