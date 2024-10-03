@@ -7,7 +7,7 @@ function delay(timeMs: number) {
 }
 
 export async function GET({ url }: { url: URL }) {
-  let after: undefined | string = undefined;
+  let after: null | string = null;
   let pageCount = 0;
   let totalCount = 0;
   let iteratedPages = 0;
@@ -56,7 +56,7 @@ query ($username: String!, $after: String) {
     after = createdCollectionsOrTokens.pageInfo.endCursor;
     pageCount = createdCollectionsOrTokens.edges.length;
     totalCount += createdCollectionsOrTokens.edges.reduce(
-      (total: number, edge: any) => edge.node.tokenMints.count + total,
+      (total: number, edge: any) => parseInt(edge.node.tokenMints.count) + total,
       0
     );
     iteratedPages += 1;
