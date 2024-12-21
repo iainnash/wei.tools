@@ -9,6 +9,7 @@
 	let modal: any = undefined;
 	onMount(async () => {
 		const module = await import('$lib/connect');
+		console.log(module)
 		modal = module.modal;
 	});
 

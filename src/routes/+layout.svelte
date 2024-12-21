@@ -20,9 +20,10 @@
 
       <span> super experimental: </span>
       <a href="/share">share call</a>
+      <a href="/create">create nft</a>
     </div>
 
-    by<a href="https://warpcast.com/iain">iain</a> //
+    by <a href="https://warpcast.com/iain">iain</a> //
     <a href="https://github.com/iainnash/wei.tools/">github</a>
   </footer>
 </div>
@@ -35,7 +36,7 @@
   }
   .page footer {
     text-align: center;
-    padding-bottom: 30px;
+    padding: 30px 0;
   }
 
   .page,
