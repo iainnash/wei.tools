@@ -27,7 +27,7 @@ importers:
         specifier: ^2.8.0
         version: 2.13.3(@tanstack/query-core@5.62.8)(react@18.3.1)(typescript@5.5.4)(viem@2.19.1(bufferutil@4.0.8)(typescript@5.5.4)(zod@3.24.1))
       '@web3modal/wagmi':
-        specifier: ^4.1.11
+        specifier: ^4.2.3
         version: 4.2.3(@wagmi/connectors@4.3.10(@wagmi/core@2.13.3(@tanstack/query-core@5.62.8)(react@18.3.1)(typescript@5.5.4)(viem@2.19.1(bufferutil@4.0.8)(typescript@5.5.4)(zod@3.24.1)))(bufferutil@4.0.8)(react-i18next@13.5.0(i18next@22.5.1)(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.3(@babel/core@7.25.2))(bufferutil@4.0.8)(react@18.3.1))(react@18.3.1))(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.3(@babel/core@7.25.2))(bufferutil@4.0.8)(react@18.3.1))(react@18.3.1)(rollup@4.20.0)(typescript@5.5.4)(viem@2.19.1(bufferutil@4.0.8)(typescript@5.5.4)(zod@3.24.1))(zod@3.24.1))(@wagmi/core@2.13.3(@tanstack/query-core@5.62.8)(react@18.3.1)(typescript@5.5.4)(viem@2.19.1(bufferutil@4.0.8)(typescript@5.5.4)(zod@3.24.1)))(bufferutil@4.0.8)(react@18.3.1)(viem@2.19.1(bufferutil@4.0.8)(typescript@5.5.4)(zod@3.24.1))
       '@zoralabs/erc20z':
         specifier: ^0.1.1
